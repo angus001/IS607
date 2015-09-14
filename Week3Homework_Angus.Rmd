@@ -1,0 +1,47 @@
+---
+title: "607wk3Homework"
+author: "Angus Huang"
+date: "September 12, 2015"
+output: html_document
+---
+1.Load the raw data in as a data frame
+```{r}
+library (plyr)
+bridge1 <-data.frame (read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases/bridges/bridges.data.version1", header = FALSE))
+bridge <-data.frame(read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases/bridges/bridges.data.version2",header=FALSE))
+head(bridge)
+summary(bridge)
+
+```
+2. Add Column Names to the data frame 
+
+```{r}
+colnames(bridge) <- c("id","river","location","erected","purpose","length","lanes","clear","t_or_d", "material","span","rel_L","type")
+head(bridge)
+```
+3. Change the abbreviation with full names
+```{r}
+
+bridge$river <- revalue(bridge$river,c("M"="Monongahela","O" = "Ohio", "A" = "Allegheny"))
+bridge$length <- revalue(bridge$length, c("?" = "n/a"))
+bridge$span <- revalue(bridge$span, c("?" = "n/a"))
+bridge$lanes <- revalue(bridge$lanes, c("?" = "n/a"))
+bridge$clear <- revalue(bridge$span, c("?" = "n/a"))
+bridge$t_or_d <- revalue(bridge$t_or_d, c("?" = "n/a"))
+bridge$material <- revalue(bridge$material, c("?" = "n/a"))
+bridge$rel_L <- revalue(bridge$rel_L, c("?" = "n/a"))
+head(bridge)
+summary(bridge)
+
+#bridge2[,6] <- revalue (bridge2[,6], c("?" = "n/a"))
+#View ((bridge2[,6:11]))
+#head(bridge2)
+#View(bridge2)
+```
+Question: I tried searching simple way to do "Find and Replace" function in a whole data frame without resorting to using loop. 
+Is there an easier way to do this?
+
+4.Subsetting bridge over the Ohio river
+```{r}
+newbridge <- subset(bridge,river == "Ohio", select = c(id,river,purpose, length, material))
+head(newbridge)

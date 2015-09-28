@@ -1,0 +1,78 @@
+---
+title: "Week4Assignment_Angus"
+author: "Angus Huang"
+date: "September 27, 2015"
+output: html_document
+---
+rm(list=ls())
+
+1. Read in raw data, break them into two major parts. Check the sample from each.
+
+
+
+```{r}
+library(stringr)
+rawdata <- readLines("tournamentinfo.txt")
+part1 = unlist(str_extract_all(rawdata,"^[[:blank:]]+\\d{1,2}.+"))
+head(part1)
+part2=unlist(str_extract_all(rawdata,"^[[:blank:]]+[A-Z]{2}.+"))
+head(part2)
+setInternet2(TRUE)
+```
+
+2. Extract the players' name, resident state, totalpoints and their pre game ratings.
+```{r}
+playerName=unlist(str_extract_all(part1,"(\\b[[:upper:]-]+\\b\\s)+(\\b[[:upper:]-]+\\b){1}"))
+head(playerName)
+
+stateName=unlist(str_extract_all(part2,"[[:upper:]]{2}" ))
+head(stateName)
+
+totalPoints=as.numeric(unlist(str_extract_all(part1,"\\d(.)\\d")))
+totalPoints
+
+preRating<-str_replace_all(part2,pattern="[P]\\d{1,}"," ")
+head(preRating)
+```
+
+3. Revise the rating data
+
+```{r}
+pre1 <- as.character(str_extract_all(preRating,"([R(:)][[:blank:]]+\\d{3,}+)"))
+pre1
+preRating<-as.numeric(str_extract_all(pre1,"\\d{3,}"))
+head(preRating)
+Opponents1<-( str_extract_all(part1,"[WLD][[:blank:]]+\\d{1,2}"))
+test <- as.character(Opponents1)
+head(test)
+
+OpponentsData<- str_extract_all(test,"\\d{1,2}")
+head(OpponentsData)
+opponents <- lapply(OpponentsData, as.numeric)
+```
+
+4. Prepare data as table for output. Create a function to calculate the average rating using the competiion data.
+
+```{r}
+chessdata<- data.frame(playerName,stateName,totalPoints,preRating)
+avg_newRate <- function(x){
+  newrating<-0
+  nOpponents<-length(x)
+  for (i in x){
+    newrating<-newrating+chessdata[i,"preRating"]}
+  return(newrating/nOpponents)
+}
+
+newRating <- unlist(lapply(opponents, avg_newRate))
+head(newRating)
+newRating <- as.numeric(round(newRating))
+```
+
+5. Finalize the data and generate a csv file
+
+```{r}
+chessdata<- data.frame(playerName,stateName,totalPoints,preRating,newRating)
+head(chessdata)
+write.csv(chessdata, file ="chessdata.csv")
+```
+

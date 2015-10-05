@@ -1,0 +1,55 @@
+---
+title: "Week6Assignment_Angus"
+author: "Angus Huang"
+date: "October 04, 2015"
+output: html_document
+---
+
+1. Read in CSV file
+
+```{r}
+library (dplyr)
+library (tidyr)
+rawfile <-read.csv(file.choose())
+rawfile2 <- rawfile
+rawfile2
+
+```
+
+
+2. Remove comma in numerical values
+```{r}
+rawfile2[,]<-lapply(rawfile2[,],function(rawfile2){(gsub(",","",rawfile2))})
+head(rawfile2)
+```
+
+3. Rename some of the columns or variables.
+```{r}
+names(rawfile2)[names(rawfile2) =='X']<-'Airlines'
+names(rawfile2)[names(rawfile2) =='X.1'] <-"delayed?"
+rawfile2<-rawfile2[complete.cases(rawfile2),]
+rawfile2[2,1] <- "ALASKA"
+rawfile2[4,1] <- "AM WEST"
+tidier2 <- rawfile2 %>% gather (destinations,trips,3:7)
+head (tidier2)
+```
+
+4. Transform the data to long format from wide format for easier analysis
+```{r}
+tidier3 <-tidier2 %>% spread(`delayed?`,trips)
+tidier3
+```
+5. simple analysis to see which airline and airport to avoid when travelling.
+AM West airline has 40% delayed when traveling to Sanfrancisco. 
+```{r}
+tidier3[,4]
+tidier3$delayed <-sapply(tidier3[,3],as.numeric)
+tidier3$`on time`<-sapply(tidier3[,4],as.numeric)
+tidier3$percent_delayed <- round ((tidier3$delayed/tidier3$`on time`)*100)
+tidier3
+tidier4<-tidier3[order(tidier3$percent_delayed), ]
+tidier4
+```
+
+
+

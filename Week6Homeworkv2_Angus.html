@@ -68,9 +68,7 @@ img {
 </div>
 
 
-<ol style="list-style-type: decimal">
-<li>Read in CSV file</li>
-</ol>
+<p>rm(list=ls()) 1. Read in CSV file</p>
 <pre class="r"><code>library (dplyr)</code></pre>
 <pre><code>## 
 ## Attaching package: 'dplyr'
@@ -84,7 +82,7 @@ img {
 ##     intersect, setdiff, setequal, union</code></pre>
 <pre class="r"><code>library (tidyr)</code></pre>
 <pre><code>## Warning: package 'tidyr' was built under R version 3.2.2</code></pre>
-<pre class="r"><code>rawfile &lt;-read.csv(file.choose())
+<pre class="r"><code>rawfile &lt;-read.csv(choose.files())
 rawfile2 &lt;- rawfile
 rawfile2</code></pre>
 <pre><code>##         X     X.1 Los.Angeles Phoenix San.Diego San.Francisco Seattle

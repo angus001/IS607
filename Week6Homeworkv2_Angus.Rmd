@@ -4,13 +4,13 @@ author: "Angus Huang"
 date: "October 04, 2015"
 output: html_document
 ---
-
+rm(list=ls())
 1. Read in CSV file
 
 ```{r}
 library (dplyr)
 library (tidyr)
-rawfile <-read.csv(file.choose())
+rawfile <-read.csv(choose.files())
 rawfile2 <- rawfile
 rawfile2
 

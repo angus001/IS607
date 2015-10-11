@@ -1,0 +1,80 @@
+---
+title: "Project2"
+author: "Angus Huang"
+date: "October 11, 2015"
+output: html_document
+---
+Project 2. Read 3 datasets and transform them from wide to long format and perform analysis.
+
+
+
+```{r}
+library (curl)
+library (ggplot2)
+library(tidyr)
+library(dplyr)
+hr<- read.csv(file.choose())
+
+hr2<-subset(hr,Role!='ALL')
+hr2
+
+grade<-read.csv("schoolgrade.csv")
+setwd("C://users//angus//Documents//IS607//Project2")
+getwd()
+grade
+grade2 <-grade
+names(grade2)[5] <- "Social_Studies"
+names(grade2)[7] <- "Days_Present"
+grade2
+
+trade <- read.csv("trade.csv")
+trade
+trade2<- trade
+#remove commas from numeric values
+trade2[,] <-lapply(trade2[,],function(trade2){gsub(",","",trade2)} )
+trade2
+names(trade2)[2] <- "Type"
+names(trade2)[3:8] <- c("2013:e","2013:i","2014:e","2014:i","2015:e","2015:i")
+
+```
+
+2. Convert wide from to long form
+```{r}
+trade3 <-trade2[2:13,]
+trade3 <-trade3[complete.cases(trade3),]
+#remove blank rows
+trade3 <- trade3[!(is.na(trade3$`2015:i`) |trade3$`2015:i` ==""),]
+trade3[2,1] <- "January"
+trade3[4,1] <- "February"
+trade3[6,1] <- "March"
+trade3[8,1] <- "April"
+head(trade3)
+trade3
+```
+#3.gather data into tabular format, split the column data into separate column
+
+```{r}
+trade4 <- trade3 %>% gather (year,amount,3:8)
+head(trade4)
+
+trade4$tradecat<-sub(".*:","",trade4$year)
+trade4$year <-sub(":.*","",trade4$year)
+head(trade4)
+```
+#4.now spread the data & perform analysis.
+Conclusion: The final table shows that American companies have strong export in service industry.  
+```{r}
+trade5 <-trade4%>% spread(tradecat,amount)
+head(trade5)
+trade5 <-trade5[order(trade5$Type),]
+trade5$exportratio <-(trade5$e/trade5$i)
+tbl_df(trade5)
+trade5$e <- as.numeric(trade5$e)
+trade5$i <- as.numeric(trade5$i)
+sapply(trade5, mode)
+
+trade5$exportratio <-(trade5$e/trade5$i)*100
+trade5
+```
+
+

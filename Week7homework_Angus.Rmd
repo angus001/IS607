@@ -13,32 +13,47 @@ library (curl)
 library (ggplot2)
 library(tidyr)
 library(dplyr)
-hr<- read.csv(file.choose())
+setwd("C://users//angus//Documents//IS607//Project2")
+```
 
+#read in first dataset
+```{r}
+hr<- read.csv("C://users//angus//Documents//IS607//Project2//hr.csv")
+```
+
+#remove the extra subtotal
+```{r}
 hr2<-subset(hr,Role!='ALL')
 hr2
-
-grade<-read.csv("schoolgrade.csv")
-setwd("C://users//angus//Documents//IS607//Project2")
-getwd()
+```
+#Read in second data set
+```{r}
+grade<-read.csv("C://users//angus//Documents//IS607//Project2//schoolgrade.csv")
 grade
 grade2 <-grade
+```
+
+#Correct the names of the vairables
+```{r}
 names(grade2)[5] <- "Social_Studies"
 names(grade2)[7] <- "Days_Present"
 grade2
+```
 
-trade <- read.csv("trade.csv")
-trade
+#read the third long data set
+```{r}
+trade <- read.csv("C://users//angus//Documents//IS607//Project2//trade.csv")
 trade2<- trade
-#remove commas from numeric values
+```
+#remove commas from numeric values and correct variables names
+```{r}
 trade2[,] <-lapply(trade2[,],function(trade2){gsub(",","",trade2)} )
 trade2
 names(trade2)[2] <- "Type"
 names(trade2)[3:8] <- c("2013:e","2013:i","2014:e","2014:i","2015:e","2015:i")
-
 ```
 
-2. Convert wide from to long form
+#Convert wide from to long form and filled in the blank with correct data type
 ```{r}
 trade3 <-trade2[2:13,]
 trade3 <-trade3[complete.cases(trade3),]
@@ -49,9 +64,8 @@ trade3[4,1] <- "February"
 trade3[6,1] <- "March"
 trade3[8,1] <- "April"
 head(trade3)
-trade3
 ```
-#3.gather data into tabular format, split the column data into separate column
+#gather data into tabular format, split the column data into separate column
 
 ```{r}
 trade4 <- trade3 %>% gather (year,amount,3:8)
@@ -61,20 +75,35 @@ trade4$tradecat<-sub(".*:","",trade4$year)
 trade4$year <-sub(":.*","",trade4$year)
 head(trade4)
 ```
-#4.now spread the data & perform analysis.
+#now spread the data & perform analysis.
 Conclusion: The final table shows that American companies have strong export in service industry.  
 ```{r}
 trade5 <-trade4%>% spread(tradecat,amount)
 head(trade5)
 trade5 <-trade5[order(trade5$Type),]
-trade5$exportratio <-(trade5$e/trade5$i)
 tbl_df(trade5)
 trade5$e <- as.numeric(trade5$e)
 trade5$i <- as.numeric(trade5$i)
-sapply(trade5, mode)
-
+trade5$exportratio <-(trade5$e/trade5$i)
 trade5$exportratio <-(trade5$e/trade5$i)*100
+names(trade5)[4:5]<-c("export","import")
 trade5
 ```
 
+#perform analysis on second dataset
+```{r}
+library(ggplot2)
+hr2
+hr3<-hr2[,1:3]
+hr4<-hr3 %>%spread(Location,Current_HeadCount)
+hr4$total <- hr4$DZ+hr4$GF+hr4$US
+hr4
+ggplot(data=hr4, aes(x=hr4$Role, y=hr4$total)) + geom_bar(stat="identity", position = "dodge")
+```
 
+#perform analysis on third dataset and perform correlation test between days present and average grade scores
+```{r}
+grade2
+grade2$avg<-(grade2$English +grade2$Math+grade2$Science+grade2$Social_Studies+grade2$Technology)/5
+grade2
+cor(grade2$Days_Present, grade2$avg)

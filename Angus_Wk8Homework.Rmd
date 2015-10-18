@@ -1,0 +1,32 @@
+---
+title: "W8Homework"
+author: "Angus Huang"
+date: "October 18, 2015"
+output: html_document
+---
+
+
+
+```{r}
+library (XML)
+library (curl)
+library (plyr)
+library (RJSONIO)
+getwd()
+tables<-readHTMLTable("books.html")
+htables <- as.data.frame(tables)
+htables
+
+tables2 <- xmlParse("books.xml")
+xmldata <- xmlToList(tables2)
+xtables = ldply (xmldata, data.frame)
+xtables
+
+
+tables3 <- fromJSON("JBooks.JSON")
+jtables <-as.data.frame(tables3)
+jtables
+
+
+```
+

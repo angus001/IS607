@@ -107,3 +107,6 @@ grade2
 grade2$avg<-(grade2$English +grade2$Math+grade2$Science+grade2$Social_Studies+grade2$Technology)/5
 grade2
 cor(grade2$Days_Present, grade2$avg)
+```
+
+

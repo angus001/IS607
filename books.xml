@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CATALOG>
+	<BOOK> 
+       		<TITLE>The opposite of loneliness</TITLE> 
+       		<AUTHOR>Melina Keegan</AUTHOR> 
+       		<GENRE>Short Essays</GENRE>
+   	</BOOK> 
+	<BOOK> 
+      		<TITLE>Will Power</TITLE> 
+       		<AUTHOR>Roy F. Baumeister And John Tierney</AUTHOR> 
+       		<GENRE>Applied Psychology</GENRE>
+   	</BOOK>
+	<BOOK> 
+       		<TITLE>A Crucible of Souls</TITLE> 
+       		<AUTHOR>Mitchell Hogan</AUTHOR> 
+       		<GENRE>Fantasy Novel</GENRE>
+   	</BOOK>
+</CATALOG>

@@ -1,0 +1,25 @@
+---
+title: "Week10homework"
+author: "Angus Huang"
+date: "November 1, 2015"
+output: html_document
+---
+
+```{r}
+suppressWarnings(library (XML))
+suppressWarnings(library (curl))
+suppressWarnings(library (plyr))
+suppressWarnings(library (RJSONIO))
+suppressWarnings(library (stringr))
+
+tables4 <- fromJSON("http://api.nytimes.com/svc/books/v3/lists/names.json?callback=books&api-key=f180a44716ba5141733979a79e55e3d5%3A15%3A73347792")
+jtables2 <-as.data.frame (tables4)
+
+#edit (jtables2)
+jtables3 <- t(jtables2)
+row.names(jtables3) <- NULL
+jtables3 <- (jtables3[4:56,])
+jtable4<-as.data.frame(jtables3) 
+str(jtable4)
+```
+

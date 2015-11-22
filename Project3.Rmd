@@ -1,6 +1,6 @@
 ---
 title: "Chi square Test"
-author: "Jason Joseph"
+author: "Jason Joseph, Angus huang"
 date: "October 23, 2015"
 output: html_document
 ---

@@ -1,0 +1,7 @@
+name: Publish Document
+account: rpubs
+server: rpubs.com
+bundleId:
+        https://api.rpubs.com/api/v1/document/121826/7526a0eb10d54ac0927c3fed5099e0d7
+url: http://rpubs.com/ahuang/121826
+when: 1446157611.09212

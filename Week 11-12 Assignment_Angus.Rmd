@@ -1,0 +1,273 @@
+---
+title: "Week 11/12 Assignment"
+author: "Nabila Hossain, Angus Huang"
+date: "November 11, 2015"
+output: html_document
+---
+
+<a name="a"/>__For this assignment, we choose the [Movie Review Data](http://www.cs.cornell.edu/people/pabo/movie-review-data/)  <http://www.cs.cornell.edu/people/pabo/movie-review-data/> from Cornell University. We choose the sentiment polarity dataset: "polarity dataset v2.0," which  was introduced in Pang/Lee ACL in 2004. This dataset contains 1000 positive processed reviews and 1000 negative processed reviews.Classification of movie reivews are based on explicit numerical or star rating. Three and a half stars or more are considered positive in a five star rating system. With a letter grade system: B or above is considered positive. Based on this methods, 1000 positive text reviews and 1000 negative text reviews are collected.__
+    
+#### Pre-coding steps   
+* [Preparing the data.](#1a)
+* [Installing necessary `r` packages.](#1b)  
+
+#### Studing the Positive Movie reviews. 
+* [Creating a positive review corpus.](#2a)
+* [Creating csv with words](#2b)
+* [Visual for the most frequent words.](#2c)  
+
+
+#### Studing the negative movie reviews. 
+* [Creating a negative corpus.](#3a)
+* [Creating csv with words](#3b) 
+* [Visual for the most frequent words.](#3c) 
+
+
+#### Studing the positive and negative movie reviews. 
+* [Creating words matrix associated with positive or negatives reviews.](#4a)
+* [Creating csv file with most occuring words in both positive and negative movie reviews.](#4b) 
+* [Using Randomforest on the data.](#4b) 
+
+
+<a name="1a"/>__We downloaded the zip file "polarity dataset v2.0" from the [link](http://www.cs.cornell.edu/people/pabo/movie-review-data/) mentioned above. The dataset was in a Tar GZip File. We unzipped the file using 7zip. Then placed the unzipped file in our local working directory.__   
+
+
+__<a name="1b"/>Installing all the necessary packages needed for this data analysis.__
+
+```{r, message=FALSE, warning=FALSE}
+
+library(tm) 
+library(SnowballC)
+library(ggplot2)
+library(RColorBrewer)
+library(wordcloud)
+library(bigmemory)
+library(randomForest)
+```
+
+
+[UP](#a)  
+
+
+<a name="2a"/>__First we uploaded all the text files in the positive movie review folder to `r` by creating a path from our local working directory. Then we created a corpus for positive movie reviews, using the `tm` package. Using the `tm` and `SnowballC` packages we transformed and tidied the corpus.__
+
+```{r}
+pos <- file.path(getwd(), "review_polarity/txt_sentoken/pos")
+head(dir(pos))
+pos_corpus <- Corpus(DirSource(pos))
+
+simple_words <- function(x) removeWords(x, stopwords("SMART"))
+
+funs <- list(stripWhitespace, content_transformer(tolower), simple_words, removePunctuation, removeNumbers, stemDocument, PlainTextDocument)
+
+pos_corpus <- tm_map(pos_corpus, FUN = tm_reduce, tmFuns = funs)
+
+#inspect posive corpus (document 408)
+writeLines(as.character(pos_corpus[408]))
+
+```
+
+[UP](#a)  
+  
+  
+<a name="2b"/>__creating a data frame with the most occurring words in positive reviews.__
+```{r}
+common_terms <- DocumentTermMatrix(pos_corpus)
+common_terms
+
+
+word_freq_pos <- sort(colSums(as.table(common_terms)), decreasing=FALSE)
+pos_words_freq <- data.frame(words=names(word_freq_pos), freq=word_freq_pos) 
+row.names(pos_words_freq) <- NULL
+
+tail(pos_words_freq)
+
+```
+
+[UP](#a)  
+  
+<a name="2c"/>__Creating visual for positive movie review. Using `ggplot2`, `wordcloud` and `RColorBrewer` packages we created a histogram with most frequent words (frequency >= 900) and a word cloud with the most frequent (top 100) words.__
+
+```{r}
+findAssocs(common_terms, c("flim", "story"), 0.5)
+
+pos_freq100 <- subset(pos_words_freq, freq >= 100)
+pos_freq500 <- subset(pos_words_freq, freq >= 500)
+head(pos_freq500, 10)
+
+pos_freq900 <- subset(pos_words_freq, freq >= 900)
+
+ggplot(data = pos_freq900, aes(x= words, y =freq, fill=words)) + geom_bar(stat="identity")  + theme(legend.position="none") + theme(axis.text.x  = element_text(angle=10, vjust=.9, hjust=.6)) + ggtitle("Graph 1: Words that appear the most in positive movie reviews.") + ylab("Frequency")   
+
+dtm2 <- as.matrix (common_terms)
+freq <- colSums(dtm2)
+
+freq <- sort(freq, decreasing = TRUE)
+words <-names(freq)
+
+wordcloud(words[1:100], freq [1:100], colors=brewer.pal(5, "Dark2"))
+
+```
+
+[UP](#a)  
+
+
+<a name="3a"/>__We uploaded all the text files in the negative movie review folder to `r` by creating a path from our local working directory. Then we created a corpus for negative movie reviews, using the `tm` package. Using the `tm` and `SnowballC` packages we transformed and tidied the corpus.__
+```{r}
+neg <- file.path(getwd(), "review_polarity/txt_sentoken/neg")
+head(neg)
+head(dir(neg))
+neg_corpus <- Corpus(DirSource(neg))
+
+funs <- list(stripWhitespace, removePunctuation, removeNumbers, content_transformer(tolower), simple_words, stemDocument, PlainTextDocument)
+neg_corpus <- tm_map(neg_corpus, FUN = tm_reduce, tmFuns = funs)
+
+#inspect (neg_corpus [2])
+writeLines(as.character(neg_corpus[2]))
+
+```
+
+[UP](#a)  
+   
+<a name="3b"/>__Creating a data frame with the most occurring words in negative reviews.__
+```{r}
+
+common_terms2 <- DocumentTermMatrix(neg_corpus)
+common_terms2
+
+word_freq_neg <- sort(colSums(as.table(common_terms2)), decreasing=FALSE)
+
+
+neg_word_freq <- data.frame(word=names(word_freq_neg), freq=word_freq_neg) 
+row.names(neg_word_freq) <- NULL
+
+tail(neg_word_freq)
+
+```
+
+[UP](#a)  
+   
+<a name="3c"/>__Creating visual for negative movie review. Using `ggplot2`, `wordcloud` and `RColorBrewer` packages we created a histogram with most frequent words (frequency >= 900) and a word cloud with the most frequent (top 100) words.__
+```{r}
+findAssocs(common_terms2, c("flim", "story"), 0.5)
+
+neg_freq900 <- subset(neg_word_freq, freq >= 900)
+
+ggplot(data =  neg_freq900, aes(x= word, y =freq, fill=word)) + geom_bar(stat="identity") + scale_fill_brewer(palette = "Set3") + theme(legend.position="none") + theme(axis.text.x  = element_text(angle=10, vjust=.9, hjust=.6)) + ggtitle("Graph 2: Words that appear the most in negative movie reviews.") +ylab("Frequency") 
+
+neg_freq100 <- subset(neg_word_freq, freq >= 100)
+
+neg_freq500 <- subset(neg_word_freq, freq >= 500)
+head(neg_freq500, 10)
+
+wordcloud(neg_freq100$word, neg_freq100$freq, max.words=100, colors=brewer.pal(8, "Set1"))
+
+```
+
+
+[UP](#a)  
+   
+<a name="4a"/>__Creating words matrix associated with positive or negatives reviews__  
+
+step1. transform the most frequently appeared positive words, over 900 times, into a data frame format.    
+
+step2. transform the most frequently appeared negative words, over 900 times, into a data frame format.
+   
+Step3. Adjust the dimension of the data frames for both the negative and positive reviews.
+   
+Step4. Combined both data frames to create "movies review matrix"
+```{r}
+dtm <- t(common_terms)
+class(dtm)
+dtm3 <- as.big.matrix(x=as.matrix(dtm))
+str(dtm3)
+M <- as.matrix(dtm3)
+
+
+write.csv(pos_freq900, file= "csvpos.csv")
+pos_key <- read.csv("csvpos.csv", stringsAsFactors = FALSE)
+pos_key1 <- pos_key$words
+
+M2 <- t(M)
+
+M3<- M2[,colnames(M2) %in% pos_key1]
+head(M3)
+
+M4 <- as.data.frame(M3)
+head(M4)
+M4$class <- "Positive"
+
+write.csv(neg_freq900, file = "csvtest.csv")
+negkey <- read.csv("csvtest.csv", stringsAsFactors = FALSE)
+negkey
+keyword3<- negkey$word
+str(keyword3)
+
+neg_dtm <- t(common_terms2)
+dtm4 <- as.big.matrix(x=as.matrix(neg_dtm))
+str(dtm4)
+M5 <- as.matrix(dtm4)
+
+M6 <- t(M5)
+M7 <- M6[,colnames(M6) %in% keyword3]
+M8 <- as.data.frame(M7)
+M8$class <- "Negative"
+
+
+colnames(M8)
+colnames(M4)
+
+M4$bad <- 0
+M4$film <- 0
+M4$plot <- 0
+
+M8$end<-0
+M8$life<-0
+M8$perform<-0
+M8$veri<- 0
+M8$work<-0
+M8$year <- 0
+
+totalM <- rbind.data.frame(M4, M8)
+
+totalM [995:1020,4:17]
+```
+
+<a name="4b"/> __Writting a CSV file with the movie review matrix.__
+```{r}
+write.csv(totalM, file = "C:/Users/Nabila/Documents/GitHub/Class-IS607/Week 11-12 Assignment/movies_review_matrix.csv")
+
+```
+
+[UP](#a)  
+    
+<a name="4c"/>__Testing with random Forest model__  
+   
+Step1.clean up the row names of the data frame.   
+   
+Step2. Change the data frame column, "class",  to factor from character.  
+  
+Step3. Run Random Forest package and produce "confusion matrix" & important variables association.
+      
+Surprisingly the word "film" and "veri" have highest association scores.
+```{r}
+
+row.names(totalM) <-NULL
+WM <- totalM
+
+str(WM)
+
+#change the catagorization to factor type
+WM$class <- factor(WM$class)
+
+
+rf = randomForest(class ~ ., data = WM, mtry =4 , ntree = 400)
+rf
+rf$confusion
+rf$importance
+
+```
+
+[UP](#a)  
+
+   

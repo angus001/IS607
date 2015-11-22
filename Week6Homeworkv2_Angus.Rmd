@@ -47,7 +47,7 @@ tidier3$delayed <-sapply(tidier3[,3],as.numeric)
 tidier3$`on time`<-sapply(tidier3[,4],as.numeric)
 tidier3$percent_delayed <- round ((tidier3$delayed/tidier3$`on time`)*100)
 tidier3
-tidier4<-tidier3[order(tidier3$percent_delayed), ]
+tidier4<-tidier3[order(tidier3$percent_delayed), ] 
 tidier4
 ```
 
